@@ -11,7 +11,7 @@ import UIKit
 class companiesController: UITableViewController {
     
     let cellID = "UITableViewCell"
-    let companies = [
+    private var companies = [
         Company(name: "Apple",
                 founded: Date()),
         Company(name: "Google",
@@ -39,6 +39,7 @@ class companiesController: UITableViewController {
         print("handleAddCompany")
         
         let createCompanyController = CreateCompanyController()
+        createCompanyController.delegate = self
         
         let navController = CustomNavigationController(rootViewController: createCompanyController)
         present(navController,
@@ -93,3 +94,10 @@ class companiesController: UITableViewController {
     }
 }
 
+extension companiesController: CreateCompanyControllerDelegate {
+    func didAddCompany(company: Company) {
+        companies.append(company)
+        let newIndexPath = IndexPath(row: companies.count - 1, section: 0)
+        tableView.insertRows(at: [newIndexPath], with: .automatic)
+    }
+}
