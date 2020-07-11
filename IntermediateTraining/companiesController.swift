@@ -12,7 +12,7 @@ import CoreData
 class companiesController: UITableViewController {
     
     let cellID = "UITableViewCell"
-    private var companies: [CompanyStruct] = [
+    private var companies: [Company] = [
         
     ]
     
@@ -34,25 +34,15 @@ class companiesController: UITableViewController {
     }
     
     private func fetchCompanies() {
-        let persistentContainer = NSPersistentContainer(name: "CoreData")
-        persistentContainer.loadPersistentStores { (storeDescription, err) in
-            if let err = err {
-                fatalError("\(err)")
-            }
+        let context = CoreDataManager.shared.persistentContainer.viewContext
+        let fetchRequest = NSFetchRequest<Company>(entityName: "Company")
+        do {
+            let companies = try context.fetch(fetchRequest)
             
-            let context = persistentContainer.viewContext
-            
-            let fetchRequest = NSFetchRequest<Company>(entityName: "Company")
-            
-            do {
-                let companies = try context.fetch(fetchRequest)
-                
-                companies.forEach({(company) in
-                    print(company.name ?? "")
-                })
-            } catch let err {
-                fatalError("\(err)")
-            }
+            self.companies = companies
+            self.tableView.reloadData()
+        } catch let err {
+            fatalError("\(err)")
         }
     }
     
@@ -116,7 +106,7 @@ class companiesController: UITableViewController {
 }
 
 extension companiesController: CreateCompanyControllerDelegate {
-    func didAddCompany(company: CompanyStruct) {
+    func didAddCompany(company: Company) {
         companies.append(company)
         let newIndexPath = IndexPath(row: companies.count - 1, section: 0)
         tableView.insertRows(at: [newIndexPath], with: .automatic)

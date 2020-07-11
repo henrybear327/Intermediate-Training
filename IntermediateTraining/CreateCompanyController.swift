@@ -12,14 +12,14 @@ import CoreData
 // Custom Delegation
 
 protocol CreateCompanyControllerDelegate {
-    func didAddCompany(company: CompanyStruct)
+    func didAddCompany(company: Company)
 }
 
 class CreateCompanyController: UIViewController {
     
     // not tightly-coupled
     var delegate: CreateCompanyControllerDelegate?
-        
+    
     let nameLabel: UILabel = {
         let label = UILabel()
         label.text = "Name"
@@ -52,33 +52,21 @@ class CreateCompanyController: UIViewController {
     @objc private func handleSave() {
         print("Trying to save company...")
         
-        dismiss(animated: true) {
-            guard let name = self.nameTextField.text else { return }
+        
+        guard let name = self.nameTextField.text else { return }
+        
+        let context = CoreDataManager.shared.persistentContainer.viewContext
+        let company = NSEntityDescription.insertNewObject(forEntityName: "Company",
+                                                          into: context)
+        company.setValue(name,
+                         forKey: "name")
+        do {
+            try context.save()
+            self.dismiss(animated: true)
             
-            let persistentContainer = NSPersistentContainer(name: "CoreData")
-            persistentContainer.loadPersistentStores { (storeDescription, err) in
-                if let err = err {
-                    fatalError("\(err)")
-                }
-                
-                let context = persistentContainer.viewContext
-                
-                let company = NSEntityDescription.insertNewObject(forEntityName: "Company",
-                                                                  into: context)
-                
-                company.setValue(name,
-                                 forKey: "name")
-                
-                do {
-                    try context.save()
-                } catch let err {
-                    fatalError("\(err)")
-                }
-            }
-            
-            let company = CompanyStruct(name: name, founded: Date())
-            
-            self.delegate?.didAddCompany(company: company)
+            self.delegate?.didAddCompany(company: company as! Company)
+        } catch let err {
+            fatalError("\(err)")
         }
     }
     
