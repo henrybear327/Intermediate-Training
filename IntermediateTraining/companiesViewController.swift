@@ -10,17 +10,21 @@ import UIKit
 
 class companiesViewController: UITableViewController {
     
+    let cellID = "UITableViewCell"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         
-        tableView.backgroundColor = UIColor(red: 9/255,
-                                            green: 45/255,
-                                            blue: 64/255,
-                                            alpha: 1)
-        tableView.separatorStyle = .none
+        tableView.backgroundColor = .darkBlue
+//        tableView.separatorStyle = .none
+        tableView.separatorColor = .white
         
         setupNavigationController()
+        
+        tableView.register(UITableViewCell.self,
+                           forCellReuseIdentifier: cellID)
+        tableView.tableFooterView = UIView()
     }
     
     @objc func handleAddCompany() {
@@ -37,8 +41,7 @@ class companiesViewController: UITableViewController {
         
         if #available(iOS 13.0, *) {
             let appearance = UINavigationBarAppearance()
-            let lightRed = UIColor(red: 247/255, green: 66/255, blue: 82/255, alpha: 1)
-            appearance.backgroundColor = lightRed
+            appearance.backgroundColor = .lightRed
             appearance.largeTitleTextAttributes = [
                 .foregroundColor : UIColor.white
             ] //portrait title (large)
@@ -71,6 +74,31 @@ class companiesViewController: UITableViewController {
     //        return .lightContent // doesn't work
     //    }
     
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellID,
+                                                 for: indexPath)
+        
+        cell.backgroundColor = .tealColor
+        
+        cell.textLabel?.text = "Hi"
+        cell.textLabel?.textColor = .white
+        cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        
+        return cell
+    }
     
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 8
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 50
+    }
+    
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view = UIView()
+        view.backgroundColor = .lightBlue
+        return view
+    }
 }
 
