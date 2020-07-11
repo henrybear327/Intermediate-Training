@@ -8,26 +8,28 @@
 
 import UIKit
 
-class companiesViewController: UIViewController {
+class companiesViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.navigationItem.title = "Companies"
-        
         self.view.backgroundColor = .white
         
-        setupNavigationController()
+        tableView.backgroundColor = UIColor(red: 9/255,
+                                            green: 45/255,
+                                            blue: 64/255,
+                                            alpha: 1)
+        tableView.separatorStyle = .none
         
-        let imageView = UIImageView(image: UIImage(systemName: "plus.rectangle.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal))
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: imageView)
+        setupNavigationController()
     }
     
     @objc func handleAddCompany() {
-        
+        print("handleAddCompany")
     }
     
     func setupNavigationController() {
+        self.navigationItem.title = "Companies"
+        
         //        self.navigationController?.navigationBar.backgroundColor = .red
         //        self.navigationController?.navigationBar.isTranslucent = false
         
@@ -39,10 +41,10 @@ class companiesViewController: UIViewController {
             appearance.backgroundColor = lightRed
             appearance.largeTitleTextAttributes = [
                 .foregroundColor : UIColor.white
-            ] //portrait title
+            ] //portrait title (large)
             appearance.titleTextAttributes = [
                 .foregroundColor : UIColor.white
-            ] //landscape title
+            ] //landscape title (small)
             
             UINavigationBar.appearance().tintColor = .white
             self.navigationController?.navigationBar.prefersLargeTitles = true
@@ -58,10 +60,17 @@ class companiesViewController: UIViewController {
                 .foregroundColor: UIColor.white
             ]
         }
+        
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus.rectangle.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal),
+        style: .plain,
+        target: self,
+        action: #selector(handleAddCompany))
     }
     
     //    override var preferredStatusBarStyle: UIStatusBarStyle {
     //        return .lightContent // doesn't work
     //    }
+    
+    
 }
 
