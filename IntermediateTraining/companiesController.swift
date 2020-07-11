@@ -7,17 +7,13 @@
 //
 
 import UIKit
+import CoreData
 
 class companiesController: UITableViewController {
     
     let cellID = "UITableViewCell"
-    private var companies = [
-        Company(name: "Apple",
-                founded: Date()),
-        Company(name: "Google",
-                founded: Date()),
-        Company(name: "Facebook",
-                founded: Date())
+    private var companies: [CompanyStruct] = [
+        
     ]
     
     override func viewDidLoad() {
@@ -33,6 +29,31 @@ class companiesController: UITableViewController {
                                                                  action: #selector(handleAddCompany))
         
         setupTableView()
+        
+        fetchCompanies()
+    }
+    
+    private func fetchCompanies() {
+        let persistentContainer = NSPersistentContainer(name: "CoreData")
+        persistentContainer.loadPersistentStores { (storeDescription, err) in
+            if let err = err {
+                fatalError("\(err)")
+            }
+            
+            let context = persistentContainer.viewContext
+            
+            let fetchRequest = NSFetchRequest<Company>(entityName: "Company")
+            
+            do {
+                let companies = try context.fetch(fetchRequest)
+                
+                companies.forEach({(company) in
+                    print(company.name ?? "")
+                })
+            } catch let err {
+                fatalError("\(err)")
+            }
+        }
     }
     
     @objc func handleAddCompany() {
@@ -95,7 +116,7 @@ class companiesController: UITableViewController {
 }
 
 extension companiesController: CreateCompanyControllerDelegate {
-    func didAddCompany(company: Company) {
+    func didAddCompany(company: CompanyStruct) {
         companies.append(company)
         let newIndexPath = IndexPath(row: companies.count - 1, section: 0)
         tableView.insertRows(at: [newIndexPath], with: .automatic)

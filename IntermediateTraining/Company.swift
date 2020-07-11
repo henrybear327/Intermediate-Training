@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Company {
+struct CompanyStruct {
     let name: String
     let founded: Date
     
