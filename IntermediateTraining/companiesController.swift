@@ -12,9 +12,7 @@ import CoreData
 class companiesController: UITableViewController {
     
     let cellID = "UITableViewCell"
-    private var companies: [Company] = [
-        
-    ]
+    private var companies: [Company] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -102,6 +100,38 @@ class companiesController: UITableViewController {
         let view = UIView()
         view.backgroundColor = .lightBlue
         return view
+    }
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let delete = UIContextualAction(style: .destructive,
+                                        title: "Delete") { (action, view, callback) in
+                                            let company = self.companies[indexPath.row]
+                                            print("Deleting \(String(describing: company.name))")
+                                            
+                                            // tableview
+                                            self.companies.remove(at: indexPath.row) // rowInSection will be called in deletion!
+                                            self.tableView.deleteRows(at: [indexPath],
+                                                                      with: .automatic)
+                                            
+                                            // core data
+                                            let context = CoreDataManager.shared.persistentContainer.viewContext
+                                            context.delete(company)
+                                            
+                                            do {
+                                                try context.save()
+                                            } catch let err {
+                                                fatalError("\(err)")
+                                            }
+                                            
+        }
+        
+        let edit = UIContextualAction(style: .normal,
+                                      title: "Edit") { (action, view, callback) in
+                                        let company = self.companies[indexPath.row]
+                                        print("Editing \(String(describing: company.name))")
+        }
+        
+        return UISwipeActionsConfiguration(actions: [edit, delete])
     }
 }
 
