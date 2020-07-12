@@ -129,13 +129,33 @@ class companiesController: UITableViewController {
                                       title: "Edit") { (action, view, callback) in
                                         let company = self.companies[indexPath.row]
                                         print("Editing \(String(describing: company.name))")
+                                        
+                                        let editController = CreateCompanyController()
+                                        editController.delegate = self
+                                        editController.setCompany(company: self.companies[indexPath.row])
+                                        self.present(CustomNavigationController(rootViewController: editController),
+                                                     animated: true,
+                                                     completion: nil)
         }
         
-        return UISwipeActionsConfiguration(actions: [edit, delete])
+        delete.backgroundColor = .lightRed
+        edit.backgroundColor = .darkBlue
+        
+        return UISwipeActionsConfiguration(actions: [delete, edit])
     }
 }
 
 extension companiesController: CreateCompanyControllerDelegate {
+    func didEditCompany(company: Company) {
+        let row = self.companies.firstIndex(of: company)
+        
+        let reloadIndexPath = IndexPath(row: row!,
+                                        section: 0)
+        
+        tableView.reloadRows(at: [reloadIndexPath],
+                             with: .automatic)
+    }
+    
     func didAddCompany(company: Company) {
         companies.append(company)
         let newIndexPath = IndexPath(row: companies.count - 1, section: 0)

@@ -13,14 +13,21 @@ import CoreData
 
 protocol CreateCompanyControllerDelegate {
     func didAddCompany(company: Company)
+    func didEditCompany(company: Company)
 }
 
 class CreateCompanyController: UIViewController {
     
+    private var company: Company? = nil {
+        didSet {
+            self.nameTextField.text = company?.name
+        }
+    }
+    
     // not tightly-coupled
     var delegate: CreateCompanyControllerDelegate?
     
-    let nameLabel: UILabel = {
+    private let nameLabel: UILabel = {
         let label = UILabel()
         label.text = "Name"
         //enable autolayout
@@ -28,7 +35,7 @@ class CreateCompanyController: UIViewController {
         return label
     }()
     
-    let nameTextField: UITextField = {
+    private let nameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Enter name"
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -49,12 +56,15 @@ class CreateCompanyController: UIViewController {
         view.backgroundColor = UIColor.darkBlue
     }
     
-    @objc private func handleSave() {
-        print("Trying to save company...")
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
-        
-        guard let name = self.nameTextField.text else { return }
-        
+        if let _ = company {
+            navigationItem.title = "Edit Company"
+        }
+    }
+    
+    fileprivate func createCompany(_ name: String) {
         let context = CoreDataManager.shared.persistentContainer.viewContext
         let company = NSEntityDescription.insertNewObject(forEntityName: "Company",
                                                           into: context)
@@ -62,11 +72,37 @@ class CreateCompanyController: UIViewController {
                          forKey: "name")
         do {
             try context.save()
-            self.dismiss(animated: true)
-            
-            self.delegate?.didAddCompany(company: company as! Company)
+            self.dismiss(animated: true, completion: {
+                self.delegate?.didAddCompany(company: company as! Company)
+            })
         } catch let err {
             fatalError("\(err)")
+        }
+    }
+    
+    fileprivate func saveCompanyChanges() {
+        let context = CoreDataManager.shared.persistentContainer.viewContext
+        company?.name = nameTextField.text
+
+        do {
+            try context.save()
+            self.dismiss(animated: true, completion: {
+                self.delegate?.didEditCompany(company: self.company!)
+            })
+        } catch let err {
+            fatalError("\(err)")
+        }
+    }
+    
+    @objc private func handleSave() {
+        print("Trying to save company...")
+        
+        guard let name = self.nameTextField.text else { return }
+        
+        if let _ = company {
+            saveCompanyChanges()
+        } else {
+            createCompany(name)
         }
     }
     
@@ -102,6 +138,10 @@ class CreateCompanyController: UIViewController {
     
     @objc func handleCancel() {
         dismiss(animated: true, completion: nil)
+    }
+    
+    func setCompany(company: Company) {
+        self.company = company
     }
     
 }
